@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Fehlersuche</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e74c3c; /* Rot für "Fehler finden" als Signalfarbe */
+            --selection-blue: #3498db;
+            --success-color: #27ae60;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --hover-bg: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; margin-bottom: 30px; }
+
+        /* Hinweisbox */
+        .instruction-box {
+            background-color: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Frage-Karte */
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .question-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Die Auswahlmöglichkeiten (Radio Buttons getarnt) */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .option-label:hover {
+            background-color: var(--hover-bg);
+            border-color: #bdc3c7;
+        }
+
+        /* Radio Button verstecken, aber zugänglich halten */
+        .option-input {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        /* Visuelles Feedback bei Auswahl */
+        .option-input:checked + .option-content {
+            font-weight: bold;
+            color: var(--selection-blue);
+        }
+        
+        .option-label:has(.option-input:checked) {
+            border-color: var(--selection-blue);
+            background-color: #ebf5fb;
+        }
+
+        /* Stil für den Text */
+        .option-content {
+            width: 100%;
+            font-size: 1.1rem;
+        }
+
+        /* Feedback Farben (nach Überprüfung) */
+        /* Wenn man den Fehler korrekt gefunden hat -> Grün */
+        .option-label.found-error {
+            border-color: var(--success-color) !important;
+            background-color: #d4efdf !important;
+            color: #145a32;
+        }
+        .option-label.found-error::after {
+            content: "Richtig erkannt! (Das ist der Fehler)";
+            display: block;
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: var(--success-color);
+        }
+
+        /* Wenn man einen korrekten Satz für falsch hielt -> Rot */
+        .option-label.false-positive {
+            border-color: var(--accent-color) !important;
+            background-color: #fadbd8 !important;
+            color: #7b241c;
+        }
+        .option-label.false-positive::after {
+            content: "Dieser Satz ist grammatikalisch korrekt.";
+            display: block;
+            font-size: 0.8em;
+            margin-top: 5px;
+            color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* Responsive Anpassungen */
+        @media (min-width: 768px) {
+            /* Auf großen Schirmen etwas kompakter */
+            .question-card { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Grammatik-Detektiv</h1>
+    <h2>Finden Sie die grammatikalischen Fehler!</h2>
+
+    <div class="instruction-box">
+        <strong>Aufgabe:</strong> In jeder Gruppe gibt es Sätze. Einer davon ist 
+        <span style="color:var(--accent-color); font-weight:bold;">FALSCH</span>. 
+        Klicken Sie auf den Satz, der den Fehler enthält.
+    </div>
+
+    <!-- Frage 1 -->
+    <div class="question-card" id="q1">
+        <div class="question-title">
+            <span>Gruppe 1: Genitivendung (von wo?)</span>
+        </div>
+        <div class="options-container">
+            <label class="option-label">
+                <input type="radio" name="g1" value="correct" class="option-input">
+                <div class="option-content">Я иду с почты.</div>
+            </label>
+            <label class="option-label">
+                <!-- Dies ist der FEHLERHAFTE Satz (Ziel) -->
+                <input type="radio" name="g1" value="error" class="option-input">
+                <div class="option-content">Я иду с почту.</div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Frage 2 -->
+    <div class="question-card" id="q2">
+        <div class="question-title">
+            <span>Gruppe 2: Richtung vs. Ort (in den Park)</span>
+        </div>
+        <div class="options-container">
+            <label class="option-label">
+                <!-- Fehler: 'идет' ist Bewegung, 'в парке' ist Ort (6. Fall) -->
+                <input type="radio" name="g2" value="error" class="option-input">
+                <div class="option-content">Антон идет в парке.</div>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="g2" value="correct" class="option-input">
+                <div class="option-content">Антон гуляет в парке.</div>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="g2" value="correct" class="option-input">
+                <div class="option-content">Антон идет в парк.</div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Frage 3 -->
+    <div class="question-card" id="q3">
+        <div class="question-title">
+            <span>Gruppe 3: Präpositionen (Konzert/Theater)</span>
+        </div>
+        <div class="options-container">
+            <label class="option-label">
+                <input type="radio" name="g3" value="correct" class="option-input">
+                <div class="option-content">Мы едем в театр.</div>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="g3" value="correct" class="option-input">
+                <div class="option-content">Мы едем на концерт.</div>
+            </label>
+            <label class="option-label">
+                <!-- Fehler: 'театр' braucht 'в', nicht 'на' -->
+                <input type="radio" name="g3" value="error" class="option-input">
+                <div class="option-content">Мы едем на театр.</div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Frage 4 -->
+    <div class="question-card" id="q4">
+        <div class="question-title">
+            <span>Gruppe 4: Zuhause (Ausnahmen)</span>
+        </div>
+        <div class="options-container">
+            <label class="option-label">
+                <!-- Fehler: 'иду' (Richtung) braucht 'домой', nicht 'дома' -->
+                <input type="radio" name="g4" value="error" class="option-input">
+                <div class="option-content">Я иду дома.</div>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="g4" value="correct" class="option-input">
+                <div class="option-content">Я был дома.</div>
+            </label>
+            <label class="option-label">
+                <input type="radio" name="g4" value="correct" class="option-input">
+                <div class="option-content">Я иду из дома.</div>
+            </label>
+        </div>
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        // Wir suchen alle ausgewählten Radio-Buttons
+        const checkedInputs = document.querySelectorAll('.option-input:checked');
+        const allGroups = 4; // Anzahl der Fragen
+        let correctSelections = 0; // Wie oft wurde der Fehler korrekt gefunden?
+        let totalAnswered = 0;
+
+        // Reset first
+        document.querySelectorAll('.option-label').forEach(el => {
+            el.classList.remove('found-error', 'false-positive');
+        });
+
+        checkedInputs.forEach(input => {
+            totalAnswered++;
+            const parentLabel = input.closest('.option-label');
+            
+            // value="error" bedeutet: Dies ist der Satz mit dem Fehler (also die richtige Wahl für den User)
+            if (input.value === 'error') {
+                parentLabel.classList.add('found-error');
+                correctSelections++;
+            } else {
+                // User hat einen korrekten Satz angeklickt -> Das ist falsch in dieser Aufgabe
+                parentLabel.classList.add('false-positive');
+            }
+        });
+
+        const summary = document.getElementById('summary');
+        
+        if (totalAnswered === 0) {
+            summary.innerText = "Bitte wähle in jeder Gruppe einen Satz aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (totalAnswered < allGroups) {
+            summary.innerText = "Bitte bearbeite alle Gruppen.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctSelections === allGroups) {
+            summary.innerText = "Hervorragend! Du hast alle Fehler gefunden.";
+            summary.style.color = "var(--success-color)";
+        } else {
+            summary.innerText = `Du hast ${correctSelections} von ${allGroups} Fehlern gefunden.`;
+            summary.style.color = "#e74c3c";
+        }
+    }
+
+    function resetTask() {
+        const inputs = document.querySelectorAll('.option-input');
+        inputs.forEach(input => input.checked = false);
+        
+        document.querySelectorAll('.option-label').forEach(el => {
+            el.classList.remove('found-error', 'false-positive');
+        });
+        
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        // Wir markieren einfach die Sätze, die 'value="error"' haben
+        const errorInputs = document.querySelectorAll('.option-input[value="error"]');
+        
+        // Reset visual feedback first to avoid confusion
+        document.querySelectorAll('.option-label').forEach(el => {
+            el.classList.remove('found-error', 'false-positive');
+        });
+
+        errorInputs.forEach(input => {
+            const parentLabel = input.closest('.option-label');
+            // Simulieren wir, dass dies "gefunden" wurde, aber visuell etwas anders oder gleich
+            parentLabel.classList.add('found-error');
+            // Optional: input checken
+            input.checked = true;
+        });
+
+        const summary = document.getElementById('summary');
+        summary.innerText = "Hier sind die Sätze mit den Fehlern (grün markiert).";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
