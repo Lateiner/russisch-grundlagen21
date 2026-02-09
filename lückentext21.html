@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Lückentext: Wo? Wohin? Woher?</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #c0392b;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --input-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        /* Karten-Design für die Sektionen */
+        .section-card {
+            background: var(--card-bg);
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        .section-title {
+            margin-top: 0;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Satz-Container */
+        .sentence-row {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap; /* Wichtig für Mobile */
+            gap: 10px;
+        }
+
+        .sentence-number {
+            font-weight: bold;
+            color: #bdc3c7;
+            min-width: 25px;
+        }
+
+        /* Dropdown Styling */
+        select {
+            padding: 8px 12px;
+            font-size: 1rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-family: inherit;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Feedback Status */
+        select.correct {
+            border-color: var(--success-color);
+            background-color: #d4efdf;
+            color: #0e6251;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color);
+            background-color: #fadbd8;
+            color: #7b241c;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.98); }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            min-height: 1.5em;
+        }
+
+        /* Mobile Optimierung */
+        @media (max-width: 600px) {
+            .sentence-row {
+                padding-bottom: 10px;
+                border-bottom: 1px dotted #eee;
+            }
+            select {
+                width: 100%; /* Auf Handy volle Breite für bessere Touch-Bedienung */
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Lückentext-Training</h1>
+    <h2>Wählen Sie die korrekte Antwort aus dem Menü.</h2>
+
+    <!-- TEIL 1: FRAGEWÖRTER -->
+    <div class="section-card">
+        <h3 class="section-title">1. Fokus: Fragewörter (Где / Куда / Откуда)</h3>
+        
+        <div class="sentence-row">
+            <span class="sentence-number">1.</span>
+            <select id="q1" data-answer="Куда">
+                <option value="">---</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select>
+            <span>ты идешь сейчас?</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">2.</span>
+            <select id="q2" data-answer="Где">
+                <option value="">---</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select>
+            <span>ты работаешь?</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">3.</span>
+            <select id="q3" data-answer="Откуда">
+                <option value="">---</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select>
+            <span>ты приехал?</span>
+        </div>
+    </div>
+
+    <!-- TEIL 2: PRÄPOSITIONEN -->
+    <div class="section-card">
+        <h3 class="section-title">2. Fokus: Präpositionen (в / на / из / с)</h3>
+        
+        <div class="sentence-row">
+            <span class="sentence-number">4.</span>
+            <span>Я иду</span>
+            <select id="q4" data-answer="на">
+                <option value="">---</option>
+                <option value="в">в</option>
+                <option value="на">на</option>
+            </select>
+            <span>завод. (Arbeitsplatz/Funktion)</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">5.</span>
+            <span>Дети играют</span>
+            <select id="q5" data-answer="в">
+                <option value="">---</option>
+                <option value="в">в</option>
+                <option value="на">на</option>
+            </select>
+            <span>парке. (Geschlossener Raum/Grenzen)</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">6.</span>
+            <span>Мы идем</span>
+            <select id="q6" data-answer="с">
+                <option value="">---</option>
+                <option value="из">из</option>
+                <option value="с">с</option>
+            </select>
+            <span>концерта. (Rückweg von Veranstaltung)</span>
+        </div>
+    </div>
+
+    <!-- TEIL 3: ENDUNGEN -->
+    <div class="section-card">
+        <h3 class="section-title">3. Fokus: Endungen (Fälle)</h3>
+        
+        <div class="sentence-row">
+            <span class="sentence-number">7.</span>
+            <span>Куда? – Я иду в</span>
+            <select id="q7" data-answer="школу">
+                <option value="">---</option>
+                <option value="школа">школа</option>
+                <option value="школы">школы</option>
+                <option value="школе">школе</option>
+                <option value="школу">школу</option>
+            </select>
+            <span>. (Akkusativ)</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">8.</span>
+            <span>Где? – Я был в</span>
+            <select id="q8" data-answer="школе">
+                <option value="">---</option>
+                <option value="школа">школа</option>
+                <option value="школы">школы</option>
+                <option value="школе">школе</option>
+                <option value="школу">школу</option>
+            </select>
+            <span>. (Präpositiv)</span>
+        </div>
+
+        <div class="sentence-row">
+            <span class="sentence-number">9.</span>
+            <span>Куда? – Мы едем на</span>
+            <select id="q9" data-answer="море">
+                <option value="">---</option>
+                <option value="море">море</option>
+                <option value="моря">моря</option>
+                <option value="морем">морем</option>
+            </select>
+            <span>. (Akkusativ)</span>
+        </div>
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let correctCount = 0;
+        let answeredCount = 0;
+
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-answer');
+            
+            // Reset classes
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer !== "") {
+                answeredCount++;
+                if (userAnswer === correctAnswer) {
+                    select.classList.add('correct');
+                    correctCount++;
+                } else {
+                    select.classList.add('incorrect');
+                }
+            }
+        });
+
+        const summary = document.getElementById('summary');
+        
+        if (answeredCount === 0) {
+            summary.innerText = "Bitte wählen Sie Antworten aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctCount === selects.length) {
+            summary.innerText = "Fantastisch! Alles richtig (9/9).";
+            summary.style.color = "var(--success-color)";
+        } else {
+            summary.innerText = `Du hast ${correctCount} von ${selects.length} richtig.`;
+            summary.style.color = "var(--error-color)";
+        }
+    }
+
+    function resetTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            select.classList.remove('correct', 'incorrect');
+        });
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            const correctAnswer = select.getAttribute('data-answer');
+            select.value = correctAnswer;
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+        
+        const summary = document.getElementById('summary');
+        summary.innerText = "Lösung angezeigt.";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
