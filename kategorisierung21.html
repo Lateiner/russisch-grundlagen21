@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Kategorisierung В oder НА</title>
+    <!-- Polyfill für Touch-Geräte -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --v-color: #3498db;  /* Blau für В */
+            --na-color: #e67e22; /* Orange für НА */
+            --success-color: #27ae60;
+            --error-color: #c0392b;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; }
+
+        .rules-hint {
+            background-color: #e8f6f3;
+            border-left: 5px solid var(--success-color);
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+        
+        .rules-hint ul { margin: 5px 0 0 20px; padding: 0; }
+
+        /* Quell-Container (Wortpool) */
+        .source-container {
+            min-height: 100px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            background-color: #fafafa;
+        }
+
+        /* Die ziehbaren Wörter */
+        .draggable {
+            background-color: white;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            padding: 10px 18px;
+            cursor: grab;
+            font-weight: bold;
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+            touch-action: none; 
+        }
+
+        .draggable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        /* Ziel-Zonen Layout */
+        .zones-wrapper {
+            display: flex;
+            gap: 20px;
+        }
+
+        .drop-zone {
+            flex: 1;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 3px solid transparent;
+            transition: background-color 0.3s, border-color 0.3s;
+            position: relative;
+        }
+
+        /* Design Zone В */
+        #zone-v {
+            background-color: #ebf5fb; /* Helles Blau */
+            border-color: #aed6f1;
+        }
+        #zone-v h3 { color: var(--v-color); text-align: center; margin-top: 0; border-bottom: 2px solid var(--v-color); padding-bottom: 10px; }
+
+        /* Design Zone НА */
+        #zone-na {
+            background-color: #fef5e7; /* Helles Orange */
+            border-color: #f5cba7;
+        }
+        #zone-na h3 { color: var(--na-color); text-align: center; margin-top: 0; border-bottom: 2px solid var(--na-color); padding-bottom: 10px; }
+
+        /* Drag Over Effekt */
+        .drop-zone.drag-over {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        /* Feedback Farben */
+        .draggable.correct {
+            background-color: #d4efdf !important;
+            border-color: var(--success-color) !important;
+            color: #145a32;
+        }
+        .draggable.incorrect {
+            background-color: #fadbd8 !important;
+            border-color: var(--error-color) !important;
+            color: #7b241c;
+        }
+
+        .feedback-message {
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 1.5em;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        /* Responsive Design */
+        @media (max-width: 700px) {
+            .zones-wrapper {
+                flex-direction: column;
+            }
+            .drop-zone {
+                min-height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Kategorisierung: В oder НА?</h1>
+    <h2>Ordnen Sie die Orte der richtigen Präposition zu.</h2>
+
+    <div class="rules-hint">
+        <strong>Erinnerung:</strong>
+        <ul>
+            <li><span style="color:var(--v-color); font-weight:bold">В</span>: Geschlossene Räume (Gebäude), Städte, Länder.</li>
+            <li><span style="color:var(--na-color); font-weight:bold">НА</span>: Offene Flächen, Veranstaltungen, Prozesse, Inseln (und Ausnahmen wie Post/Fabrik/Bahnhof).</li>
+        </ul>
+    </div>
+
+    <!-- Wörter-Pool -->
+    <div id="source-zone" class="source-container" ondrop="drop(event)" ondragover="allowDrop(event)">
+        <!-- Items kommen per JS -->
+    </div>
+
+    <div class="feedback-message" id="feedback"></div>
+
+    <!-- Ziel-Zonen -->
+    <div class="zones-wrapper">
+        <!-- Zone В -->
+        <div id="zone-v" class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>В (in)<br><small>Raum, Stadt, Land</small></h3>
+        </div>
+
+        <!-- Zone НА -->
+        <div id="zone-na" class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h3>НА (auf/an)<br><small>Fläche, Event, Prozess</small></h3>
+        </div>
+    </div>
+
+    <!-- Steuerung -->
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    // Die Datenbank der Wörter und ihrer korrekten Zuordnung ('v' oder 'na')
+    const placesData = [
+        { text: "школа (Schule)", type: "v" },
+        { text: "музей (Museum)", type: "v" },
+        { text: "магазин (Geschäft)", type: "v" },
+        { text: "Россия (Russland)", type: "v" },
+        { text: "парк (Park)", type: "v" }, // Park ist geschlossener Raum im Russischen Denken
+        
+        { text: "работа (Arbeit)", type: "na" },
+        { text: "концерт (Konzert)", type: "na" },
+        { text: "стадион (Stadion)", type: "na" },
+        { text: "рынок (Markt)", type: "na" },
+        { text: "вокзал (Bahnhof)", type: "na" }, // Ausnahme
+        { text: "выставка (Ausstellung)", type: "na" },
+        { text: "улица (Straße)", type: "na" }
+    ];
+
+    // Initialisierung
+    window.onload = function() {
+        initItems();
+    };
+
+    function initItems() {
+        const sourceZone = document.getElementById('source-zone');
+        sourceZone.innerHTML = '';
+
+        // Mischen
+        const shuffled = [...placesData].sort(() => Math.random() - 0.5);
+
+        shuffled.forEach((item, index) => {
+            const el = document.createElement('div');
+            el.classList.add('draggable');
+            el.setAttribute('draggable', 'true');
+            el.setAttribute('id', 'word-' + index);
+            el.setAttribute('data-type', item.type); // Speichert die Lösung 'v' oder 'na'
+            el.innerText = item.text;
+            
+            el.addEventListener('dragstart', drag);
+            sourceZone.appendChild(el);
+        });
+    }
+
+    // --- Drag & Drop ---
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+        // Visuelles Feedback
+        let target = ev.target.closest('.drop-zone, .source-container');
+        if(target && target.classList.contains('drop-zone')) {
+            target.classList.add('drag-over');
+        }
+    }
+
+    // Drag-Over entfernen
+    document.addEventListener('dragleave', function(ev) {
+        let target = ev.target.closest('.drop-zone');
+        if(target) target.classList.remove('drag-over');
+    });
+    
+    document.addEventListener('drop', function(ev) {
+        document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+    });
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+        ev.target.classList.add('dragging');
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const data = ev.dataTransfer.getData("text");
+        const draggedElement = document.getElementById(data);
+        
+        if(!draggedElement) return;
+
+        draggedElement.classList.remove('dragging');
+        draggedElement.classList.remove('correct', 'incorrect'); // Reset colors
+
+        // Ziel finden
+        let target = ev.target.closest('.drop-zone, .source-container');
+
+        if (target) {
+            target.appendChild(draggedElement);
+        }
+    }
+
+    // --- Logik ---
+
+    function checkAnswers() {
+        const draggables = document.querySelectorAll('.draggable');
+        let allCorrect = true;
+        let placedCount = 0;
+
+        draggables.forEach(el => {
+            const parent = el.parentElement;
+            const itemType = el.getAttribute('data-type'); // 'v' oder 'na'
+            
+            el.classList.remove('correct', 'incorrect');
+
+            if (parent.id === 'zone-v') {
+                placedCount++;
+                if (itemType === 'v') {
+                    el.classList.add('correct');
+                } else {
+                    el.classList.add('incorrect');
+                    allCorrect = false;
+                }
+            } else if (parent.id === 'zone-na') {
+                placedCount++;
+                if (itemType === 'na') {
+                    el.classList.add('correct');
+                } else {
+                    el.classList.add('incorrect');
+                    allCorrect = false;
+                }
+            } else {
+                allCorrect = false; // Noch im Quellordner
+            }
+        });
+
+        const feedback = document.getElementById('feedback');
+        if (placedCount === 0) {
+            feedback.innerText = "Bitte ordnen Sie die Wörter zu.";
+            feedback.style.color = "var(--primary-color)";
+        } else if (placedCount < draggables.length) {
+            feedback.innerText = "Noch nicht alle Wörter zugeordnet.";
+            feedback.style.color = "var(--error-color)";
+        } else if (allCorrect) {
+            feedback.innerText = "Perfekt! Du hast die Regeln verstanden.";
+            feedback.style.color = "var(--success-color)";
+        } else {
+            feedback.innerText = "Einige Zuordnungen stimmen nicht.";
+            feedback.style.color = "var(--error-color)";
+        }
+    }
+
+    function resetTask() {
+        document.getElementById('feedback').innerText = "";
+        
+        // 1. Alles löschen
+        document.querySelectorAll('.draggable').forEach(el => el.remove());
+        
+        // 2. Neu generieren
+        initItems();
+    }
+
+    function showSolution() {
+        const draggables = document.querySelectorAll('.draggable');
+        const zoneV = document.getElementById('zone-v');
+        const zoneNa = document.getElementById('zone-na');
+
+        draggables.forEach(el => {
+            const type = el.getAttribute('data-type');
+            
+            if (type === 'v') {
+                zoneV.appendChild(el);
+            } else {
+                zoneNa.appendChild(el);
+            }
+            
+            el.classList.remove('incorrect');
+            el.classList.add('correct');
+        });
+
+        const feedback = document.getElementById('feedback');
+        feedback.innerText = "Lösung angezeigt.";
+        feedback.style.color = "#f39c12";
+    }
+
+</script>
+
+</body>
+</html>
