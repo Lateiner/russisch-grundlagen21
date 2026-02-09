@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Drill: Zuhause (дома, домой, из дома)</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #e67e22; /* Warmes Orange für "Zuhause" */
+            --loc-color: #2980b9;    /* Ort */
+            --dir-color: #27ae60;    /* Richtung */
+            --origin-color: #c0392b; /* Herkunft */
+            --bg-color: #fcf3cf;     /* Leicht gelblicher, gemütlicher Hintergrund */
+            --card-bg: #ffffff;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 5px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; margin-bottom: 30px; }
+
+        /* Regel-Box (Cheat Sheet) */
+        .rule-box {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-top: 5px solid var(--accent-color);
+        }
+
+        .rule-item {
+            text-align: center;
+            flex: 1;
+            min-width: 140px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+        }
+
+        .rule-icon { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+        .rule-word { font-weight: bold; font-size: 1.2rem; display: block; color: var(--primary-color); }
+        .rule-question { font-size: 0.9rem; color: #7f8c8d; }
+
+        .bg-gde { border-bottom: 3px solid var(--loc-color); }
+        .bg-kuda { border-bottom: 3px solid var(--dir-color); }
+        .bg-otkuda { border-bottom: 3px solid var(--origin-color); }
+
+        /* Übungskarten */
+        .drill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .drill-card {
+            background-color: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: transform 0.2s;
+        }
+
+        .drill-card:hover {
+            transform: translateX(5px);
+        }
+
+        .sentence-part {
+            font-size: 1.1rem;
+        }
+
+        /* Dropdown Styling */
+        select {
+            padding: 8px 12px;
+            font-size: 1.1rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            min-width: 120px;
+            font-family: inherit;
+            color: var(--primary-color);
+            transition: all 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(230, 126, 34, 0.3);
+        }
+
+        /* Feedback Status */
+        select.correct {
+            border-color: var(--dir-color);
+            background-color: #d4efdf;
+            color: #145a32;
+        }
+
+        select.incorrect {
+            border-color: var(--origin-color);
+            background-color: #fadbd8;
+            color: #7b241c;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 15px;
+            min-height: 1.5em;
+        }
+
+        /* Kontext-Hilfe (kleiner Text unter dem Satz) */
+        .context-hint {
+            flex-basis: 100%;
+            font-size: 0.85rem;
+            color: #95a5a6;
+            margin-top: -5px;
+            margin-left: 25px; /* Einrücken */
+        }
+
+        /* Mobile Anpassung */
+        @media (max-width: 600px) {
+            .rule-box { flex-direction: column; }
+            .drill-card { flex-direction: column; align-items: flex-start; }
+            select { width: 100%; }
+            .context-hint { margin-left: 0; margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Zuhause-Drill</h1>
+    <h2>Wähle die richtige Form: <span style="font-style: normal; font-weight: bold;">дома, домой</span> oder <span style="font-style: normal; font-weight: bold;">из дома</span></h2>
+
+    <!-- Spickzettel -->
+    <div class="rule-box">
+        <div class="rule-item bg-gde">
+            <span class="rule-icon">📍</span>
+            <span class="rule-word">дома</span>
+            <span class="rule-question">Где? (Wo?)</span>
+        </div>
+        <div class="rule-item bg-kuda">
+            <span class="rule-icon">➡🏠</span>
+            <span class="rule-word">домой</span>
+            <span class="rule-question">Куда? (Wohin?)</span>
+        </div>
+        <div class="rule-item bg-otkuda">
+            <span class="rule-icon">🏠➡</span>
+            <span class="rule-word">из дома</span>
+            <span class="rule-question">Откуда? (Woher?)</span>
+        </div>
+    </div>
+
+    <!-- Übungen -->
+    <div class="drill-list">
+
+        <!-- Satz 1 -->
+        <div class="drill-card">
+            <span class="sentence-part">1. Сейчас я</span>
+            <select data-solution="дома">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">.</span>
+            <div class="context-hint">(Position: Ich bin jetzt zu Hause.)</div>
+        </div>
+
+        <!-- Satz 2 -->
+        <div class="drill-card">
+            <span class="sentence-part">2. Вечером мы идем</span>
+            <select data-solution="домой">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">.</span>
+            <div class="context-hint">(Richtung: Wir gehen nach Hause.)</div>
+        </div>
+
+        <!-- Satz 3 -->
+        <div class="drill-card">
+            <span class="sentence-part">3. Когда ты вышел</span>
+            <select data-solution="из дома">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">?</span>
+            <div class="context-hint">(Herkunft: Wann bist du von zu Hause losgegangen?)</div>
+        </div>
+
+        <!-- Satz 4 -->
+        <div class="drill-card">
+            <span class="sentence-part">4. В воскресенье мы были</span>
+            <select data-solution="дома">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">.</span>
+            <div class="context-hint">(Position: Wir waren zu Hause.)</div>
+        </div>
+
+        <!-- Satz 5 -->
+        <div class="drill-card">
+            <span class="sentence-part">5. Саша едет</span>
+            <select data-solution="домой">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">на такси.</span>
+            <div class="context-hint">(Richtung: Sasha fährt nach Hause.)</div>
+        </div>
+
+        <!-- Satz 6 -->
+        <div class="drill-card">
+            <span class="sentence-part">6. Я позвонил маме</span>
+            <select data-solution="из дома">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">.</span>
+            <div class="context-hint">(Herkunft: Ich habe von zu Hause aus angerufen.)</div>
+        </div>
+
+        <!-- Satz 7 -->
+        <div class="drill-card">
+            <span class="sentence-part">7. Пора идти</span>
+            <select data-solution="домой">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">!</span>
+            <div class="context-hint">(Richtung: Es ist Zeit, nach Hause zu gehen!)</div>
+        </div>
+
+        <!-- Satz 8 -->
+        <div class="drill-card">
+            <span class="sentence-part">8. Твоя книга лежит</span>
+            <select data-solution="дома">
+                <option value="">---</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>
+            <span class="sentence-part">.</span>
+            <div class="context-hint">(Position: Dein Buch liegt zu Hause.)</div>
+        </div>
+
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let correctCount = 0;
+        let answeredCount = 0;
+
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-solution');
+            
+            // Reset styles
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer !== "") {
+                answeredCount++;
+                if (userAnswer === correctAnswer) {
+                    select.classList.add('correct');
+                    correctCount++;
+                } else {
+                    select.classList.add('incorrect');
+                }
+            }
+        });
+
+        const summary = document.getElementById('summary');
+        
+        if (answeredCount === 0) {
+            summary.innerText = "Bitte wählen Sie für jeden Satz eine Antwort aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctCount === selects.length) {
+            summary.innerText = "Spitze! Du beherrschst den Sonderfall 'Zuhause' perfekt.";
+            summary.style.color = "#27ae60";
+        } else {
+            summary.innerText = `Du hast ${correctCount} von ${selects.length} richtig. Schau dir die Regeln oben nochmal an.`;
+            summary.style.color = "#c0392b";
+        }
+    }
+
+    function resetTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            select.classList.remove('correct', 'incorrect');
+        });
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            const correctAnswer = select.getAttribute('data-solution');
+            select.value = correctAnswer;
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+        
+        const summary = document.getElementById('summary');
+        summary.innerText = "Lösung angezeigt.";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
