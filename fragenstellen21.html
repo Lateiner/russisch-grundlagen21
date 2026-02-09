@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Fragen stellen</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --question-bg: #e8f6f3;
+            --answer-bg: #fdf2e9;
+            --success-color: #27ae60;
+            --error-color: #c0392b;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; margin-bottom: 30px; }
+
+        .instruction-box {
+            background-color: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Dialog-Karte */
+        .dialogue-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #bdc3c7; /* Standard grau */
+            transition: transform 0.2s;
+        }
+
+        .dialogue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Layout innerhalb der Karte */
+        .dialogue-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .dialogue-label {
+            font-weight: bold;
+            min-width: 80px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+        }
+
+        /* Antwort-Teil (Der Hinweis) */
+        .answer-text {
+            background-color: var(--answer-bg);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #e67e22;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+
+        /* Frage-Teil (Die Aufgabe) */
+        .question-wrapper {
+            background-color: var(--question-bg);
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 3px solid #1abc9c;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .highlight-clue {
+            font-weight: bold;
+            color: #d35400; /* Hervorhebung des Signals in der Antwort */
+        }
+
+        /* Dropdown Styling */
+        select {
+            padding: 8px 12px;
+            font-size: 1.05rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            min-width: 120px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Feedback Classes */
+        select.correct {
+            border-color: var(--success-color);
+            background-color: #d4efdf;
+            color: #145a32;
+        }
+
+        select.incorrect {
+            border-color: var(--error-color);
+            background-color: #fadbd8;
+            color: #7b241c;
+        }
+
+        /* Text im Fragesatz */
+        .question-text {
+            font-size: 1.1rem;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            min-height: 1.5em;
+        }
+
+        /* Responsive Anpassungen */
+        @media (max-width: 600px) {
+            .dialogue-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .dialogue-label {
+                margin-bottom: 2px;
+            }
+            select {
+                width: 100%; /* Volle Breite auf Mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Fragen stellen</h1>
+    <h2>Finden Sie das passende Fragewort zur Antwort.</h2>
+
+    <div class="instruction-box">
+        <strong>Anleitung:</strong> Lesen Sie zuerst die Antwort. Achten Sie auf den markierten Teil (Ort, Richtung oder Herkunft). Wählen Sie dann das passende Fragewort aus.
+    </div>
+
+    <!-- Beispiel 1: Ort (na stadione) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Антон сейчас <span class="highlight-clue">на стадионе</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Где">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">сейчас Антон?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beispiel 2: Richtung (v shkolu) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Я иду <span class="highlight-clue">в школу</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Куда">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">ты идешь?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beispiel 3: Herkunft (iz magazina) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Мы идем <span class="highlight-clue">из магазина</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Откуда">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">вы идете?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beispiel 4: Richtung (domoy) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Они поехали <span class="highlight-clue">домой</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Куда">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">они поехали?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beispiel 5: Ort (v teatre) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Вчера я был <span class="highlight-clue">в театре</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Где">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">ты был вчера?</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beispiel 6: Herkunft (s raboty) -->
+    <div class="dialogue-card">
+        <div class="dialogue-row">
+            <div class="dialogue-label">Antwort:</div>
+            <div class="answer-text">Папа пришел <span class="highlight-clue">с работы</span>.</div>
+        </div>
+        <div class="dialogue-row">
+            <div class="dialogue-label">Frage:</div>
+            <div class="question-wrapper">
+                <select data-answer="Откуда">
+                    <option value="">---</option>
+                    <option value="Где">Где</option>
+                    <option value="Куда">Куда</option>
+                    <option value="Откуда">Откуда</option>
+                </select>
+                <span class="question-text">пришел папа?</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let correctCount = 0;
+        let answeredCount = 0;
+
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-answer');
+            
+            // Reset visual state
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer !== "") {
+                answeredCount++;
+                if (userAnswer === correctAnswer) {
+                    select.classList.add('correct');
+                    correctCount++;
+                } else {
+                    select.classList.add('incorrect');
+                }
+            }
+        });
+
+        const summary = document.getElementById('summary');
+        
+        if (answeredCount === 0) {
+            summary.innerText = "Bitte wählen Sie die Fragewörter aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctCount === selects.length) {
+            summary.innerText = "Ausgezeichnet! Alle Fragen sind korrekt gestellt.";
+            summary.style.color = "var(--success-color)";
+        } else {
+            summary.innerText = `Du hast ${correctCount} von ${selects.length} richtig.`;
+            summary.style.color = "var(--error-color)";
+        }
+    }
+
+    function resetTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            select.classList.remove('correct', 'incorrect');
+        });
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            const correctAnswer = select.getAttribute('data-answer');
+            select.value = correctAnswer;
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+        
+        const summary = document.getElementById('summary');
+        summary.innerText = "Lösung angezeigt.";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
