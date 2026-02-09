@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Memory: Präpositionen-Paare</title>
+    <!-- Polyfill für bessere Touch-Unterstützung -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --card-back-color: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #e67e22;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 { margin-bottom: 0.5rem; text-align: center; color: var(--primary-color); }
+        h2 { margin-top: 0; font-size: 1.1rem; color: #7f8c8d; text-align: center; margin-bottom: 2rem; }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--primary-color);
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Das Memory Grid */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Desktop: 4 Spalten */
+            gap: 15px;
+            perspective: 1000px;
+        }
+
+        /* Die Karte */
+        .card {
+            background-color: transparent;
+            height: 120px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+            cursor: default;
+        }
+
+        /* Vorder- und Rückseite */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backface-visibility: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        /* Die Rückseite (sichtbar vor dem Klick - dunkel) */
+        .card-front {
+            background-color: var(--card-back-color);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px);
+            color: white;
+            font-size: 2rem;
+        }
+
+        /* Die Vorderseite (Text sichtbar nach Klick - weiß) */
+        .card-back {
+            background-color: white;
+            color: var(--primary-color);
+            transform: rotateY(180deg);
+            border: 2px solid var(--accent-color);
+        }
+        
+        /* Design für gelöste Paare */
+        .card.matched .card-back {
+            background-color: #d4efdf; /* Hellgrün */
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        /* Responsives Design */
+        @media (max-width: 600px) {
+            .memory-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            .card { height: 100px; }
+            .card-face { font-size: 0.9rem; }
+        }
+        
+        @media (max-width: 400px) {
+            .memory-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Buttons */
+        .btn-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .btn-check { background-color: var(--accent-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .btn-check:hover { background-color: #2980b9; }
+        .btn-reset:hover { background-color: #7f8c8d; }
+        .btn-solve:hover { background-color: #d35400; }
+
+        /* Feedback Nachricht */
+        #message {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            height: 1.5em;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Memory: Präpositionen</h1>
+    <h2>Finden Sie die Paare: Wohin (Куда) ↔ Woher (Откуда)</h2>
+
+    <div class="game-container">
+        <div class="stats">
+            <span>Züge: <span id="flips">0</span></span>
+            <span>Gefunden: <span id="matches">0</span> / 6</span>
+        </div>
+
+        <div class="memory-grid" id="grid">
+            <!-- Karten werden per JS generiert -->
+        </div>
+
+        <div id="message"></div>
+
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkStatus()">Status prüfen</button> 
+            <button class="btn-reset" onclick="resetGame()">Neu starten</button>
+            <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+        </div>
+    </div>
+
+<script>
+    // --- DATEN ---
+    const pairsData = [
+        { id: 1, textA: "в ...", textB: "из ..." },       
+        { id: 2, textA: "на ...", textB: "с ..." },       
+        { id: 3, textA: "в школу", textB: "из школы" },   
+        { id: 4, textA: "на работу", textB: "с работы" }, 
+        { id: 5, textA: "в магазин", textB: "из магазина" },
+        { id: 6, textA: "на концерт", textB: "с концерта" }
+    ];
+
+    // --- VARIABLEN ---
+    let cardsArray = [];
+    let hasFlippedCard = false;
+    let lockBoard = false;
+    let firstCard, secondCard;
+    let matchesFound = 0;
+    let attempts = 0;
+
+    // --- DOM ELEMENTE ---
+    const grid = document.getElementById('grid');
+    const flipsDisplay = document.getElementById('flips');
+    const matchesDisplay = document.getElementById('matches');
+    const messageDisplay = document.getElementById('message');
+
+    // Start beim Laden
+    window.onload = resetGame;
+
+    // --- SPIEL LOGIK ---
+
+    function resetGame() {
+        grid.innerHTML = '';
+        cardsArray = [];
+        hasFlippedCard = false;
+        lockBoard = false;
+        firstCard = null;
+        secondCard = null;
+        matchesFound = 0;
+        attempts = 0;
+        updateStats();
+        messageDisplay.innerText = "";
+
+        // Karten erstellen
+        pairsData.forEach(pair => {
+            cardsArray.push({ id: pair.id, text: pair.textA });
+            cardsArray.push({ id: pair.id, text: pair.textB });
+        });
+
+        // Mischen
+        cardsArray.sort(() => 0.5 - Math.random());
+
+        // HTML generieren
+        cardsArray.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.pairId = item.id;
+
+            const frontFace = document.createElement('div');
+            frontFace.classList.add('card-face', 'card-front');
+            frontFace.innerHTML = "?";
+
+            const backFace = document.createElement('div');
+            backFace.classList.add('card-face', 'card-back');
+            backFace.innerText = item.text;
+
+            card.appendChild(frontFace);
+            card.appendChild(backFace);
+
+            card.addEventListener('click', flipCard);
+            grid.appendChild(card);
+        });
+    }
+
+    function flipCard() {
+        if (lockBoard) return;
+        if (this === firstCard) return; // Doppelklick verhindern
+
+        this.classList.add('flipped');
+
+        if (!hasFlippedCard) {
+            // Erster Klick
+            hasFlippedCard = true;
+            firstCard = this;
+            return;
+        }
+
+        // Zweiter Klick
+        secondCard = this;
+        attempts++;
+        updateStats();
+        checkForMatch();
+    }
+
+    function checkForMatch() {
+        let isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId;
+        isMatch ? disableCards() : unflipCards();
+    }
+
+    function disableCards() {
+        // Visuell als Match markieren
+        firstCard.classList.add('matched');
+        secondCard.classList.add('matched');
+        
+        matchesFound++;
+        updateStats();
+        resetBoard();
+
+        if (matchesFound === pairsData.length) {
+            messageDisplay.innerText = "Glückwunsch! Alle Paare gefunden.";
+            messageDisplay.style.color = "var(--success-color)";
+        }
+    }
+
+    function unflipCards() {
+        lockBoard = true;
+        setTimeout(() => {
+            firstCard.classList.remove('flipped');
+            secondCard.classList.remove('flipped');
+            resetBoard();
+        }, 1200);
+    }
+
+    function resetBoard() {
+        [hasFlippedCard, lockBoard] = [false, false];
+        [firstCard, secondCard] = [null, null];
+    }
+
+    function updateStats() {
+        flipsDisplay.innerText = attempts;
+        matchesDisplay.innerText = matchesFound;
+    }
+
+    // --- BUTTON FUNKTIONEN ---
+
+    function checkStatus() {
+        if (matchesFound === pairsData.length) {
+            messageDisplay.innerText = "Das Spiel ist bereits gelöst!";
+            messageDisplay.style.color = "var(--success-color)";
+        } else {
+            const remaining = pairsData.length - matchesFound;
+            messageDisplay.innerText = `Es fehlen noch ${remaining} Paare.`;
+            messageDisplay.style.color = "var(--primary-color)";
+        }
+    }
+
+    // *** HIER IST DIE AKTIVIERTE LÖSUNGS-FUNKTION ***
+    function showSolution() {
+        // Spielbrett sperren, damit man nicht mehr klicken kann
+        lockBoard = true;
+
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            // Karte umdrehen, falls noch verdeckt
+            if (!card.classList.contains('flipped')) {
+                card.classList.add('flipped');
+            }
+            // Als "gematcht" markieren (für die grüne Farbe)
+            card.classList.add('matched');
+        });
+
+        // Statistik auf "Fertig" setzen
+        matchesFound = pairsData.length;
+        updateStats();
+
+        // Nachricht anzeigen
+        messageDisplay.innerText = "Lösung angezeigt.";
+        messageDisplay.style.color = "var(--warning-color)";
+    }
+
+</script>
+
+</body>
+</html>
