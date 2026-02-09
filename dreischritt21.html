@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Die Trias (Der Dreischritt)</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #8e44ad; /* Lila für Transformation/Magie */
+            --gde-color: #2980b9;    /* Blau für Ort */
+            --kuda-color: #27ae60;   /* Grün für Richtung */
+            --otkuda-color: #d35400; /* Orange für Herkunft */
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --border-color: #bdc3c7;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; margin-bottom: 30px; }
+
+        .instruction-box {
+            background-color: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* --- GRID LAYOUT --- */
+        .trias-grid {
+            display: grid;
+            gap: 15px;
+            /* Desktop: 4 Spalten (Wort + 3 Fälle) */
+            grid-template-columns: 1fr 1fr 1fr 1fr; 
+            align-items: center;
+        }
+
+        /* Header Zeile (nur Desktop) */
+        .header-row {
+            display: contents; /* Ignoriert den Container, Kinder werden Teil des Grids */
+            font-weight: bold;
+            color: white;
+            text-align: center;
+        }
+
+        .header-cell {
+            padding: 12px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .h-nominativ { background-color: #7f8c8d; }
+        .h-gde { background-color: var(--gde-color); }
+        .h-kuda { background-color: var(--kuda-color); }
+        .h-otkuda { background-color: var(--otkuda-color); }
+
+        /* Daten Zeile */
+        .data-row {
+            display: contents;
+        }
+
+        .word-cell {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-align: center;
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .input-cell {
+            position: relative;
+        }
+
+        /* Mobile Label (Default versteckt) */
+        .mobile-label {
+            display: none;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 4px;
+            color: #7f8c8d;
+        }
+
+        /* Dropdowns */
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 5px rgba(142, 68, 173, 0.3);
+        }
+
+        /* Feedback Styles */
+        select.correct {
+            border-color: #27ae60;
+            background-color: #d4efdf;
+            color: #145a32;
+        }
+
+        select.incorrect {
+            border-color: #c0392b;
+            background-color: #fadbd8;
+            color: #7b241c;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 40px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--accent-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 30px;
+            min-height: 1.5em;
+        }
+
+        /* --- RESPONSIVE DESIGN (Smartphone/Tablet) --- */
+        @media (max-width: 768px) {
+            .trias-grid {
+                display: block; /* Grid auflösen */
+            }
+
+            .header-row {
+                display: none; /* Desktop Header verstecken */
+            }
+
+            .data-row {
+                display: block;
+                background-color: white;
+                margin-bottom: 20px;
+                border-radius: 10px;
+                padding: 15px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border-top: 5px solid var(--primary-color);
+            }
+
+            .word-cell {
+                border: none;
+                background: none;
+                box-shadow: none;
+                margin-bottom: 15px;
+                font-size: 1.3rem;
+                padding: 0;
+                color: var(--primary-color);
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            }
+
+            .input-cell {
+                margin-bottom: 15px;
+            }
+
+            .mobile-label {
+                display: block; /* Labels anzeigen */
+            }
+            
+            /* Farbliche Markierung der Mobile Labels */
+            .lbl-gde { color: var(--gde-color); }
+            .lbl-kuda { color: var(--kuda-color); }
+            .lbl-otkuda { color: var(--otkuda-color); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Transformationsübung: Die Trias</h1>
+    <h2>Bilden Sie aus dem Wort die drei Formen: Wo? Wohin? Woher?</h2>
+
+    <div class="instruction-box">
+        <strong>Anleitung:</strong> Wählen Sie für jedes Wort die korrekten Formen aus. Achten Sie auf die Präpositionen (<strong>в/на</strong> vs. <strong>из/с</strong>) und die Endungen.
+    </div>
+
+    <div class="trias-grid">
+        <!-- Header (Desktop) -->
+        <div class="header-row">
+            <div class="header-cell h-nominativ">Wort (Nominativ)</div>
+            <div class="header-cell h-gde">Где? (Wo?)</div>
+            <div class="header-cell h-kuda">Куда? (Wohin?)</div>
+            <div class="header-cell h-otkuda">Откуда? (Woher?)</div>
+        </div>
+
+        <!-- Zeile 1: Theater -->
+        <div class="data-row">
+            <div class="word-cell">Театр</div>
+            
+            <div class="input-cell">
+                <span class="mobile-label lbl-gde">Где? (Wo?)</span>
+                <select data-answer="в театре">
+                    <option value="">---</option>
+                    <option value="в театре">в театре</option>
+                    <option value="на театре">на театре</option>
+                    <option value="в театр">в театр</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-kuda">Куда? (Wohin?)</span>
+                <select data-answer="в театр">
+                    <option value="">---</option>
+                    <option value="в театре">в театре</option>
+                    <option value="в театр">в театр</option>
+                    <option value="на театр">на театр</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-otkuda">Откуда? (Woher?)</span>
+                <select data-answer="из театра">
+                    <option value="">---</option>
+                    <option value="из театра">из театра</option>
+                    <option value="с театра">с театра</option>
+                    <option value="из театр">из театр</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Zeile 2: Schule -->
+        <div class="data-row">
+            <div class="word-cell">Школа</div>
+            
+            <div class="input-cell">
+                <span class="mobile-label lbl-gde">Где? (Wo?)</span>
+                <select data-answer="в школе">
+                    <option value="">---</option>
+                    <option value="в школу">в школу</option>
+                    <option value="в школе">в школе</option>
+                    <option value="на школе">на школе</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-kuda">Куда? (Wohin?)</span>
+                <select data-answer="в школу">
+                    <option value="">---</option>
+                    <option value="в школу">в школу</option>
+                    <option value="в школе">в школе</option>
+                    <option value="на школу">на школу</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-otkuda">Откуда? (Woher?)</span>
+                <select data-answer="из школы">
+                    <option value="">---</option>
+                    <option value="с школы">с школы</option>
+                    <option value="из школы">из школы</option>
+                    <option value="из школа">из школа</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Zeile 3: Konzert -->
+        <div class="data-row">
+            <div class="word-cell">Концерт</div>
+            
+            <div class="input-cell">
+                <span class="mobile-label lbl-gde">Где? (Wo?)</span>
+                <select data-answer="на концерте">
+                    <option value="">---</option>
+                    <option value="в концерте">в концерте</option>
+                    <option value="на концерте">на концерте</option>
+                    <option value="на концерт">на концерт</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-kuda">Куда? (Wohin?)</span>
+                <select data-answer="на концерт">
+                    <option value="">---</option>
+                    <option value="в концерт">в концерт</option>
+                    <option value="на концерт">на концерт</option>
+                    <option value="на концерте">на концерте</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-otkuda">Откуда? (Woher?)</span>
+                <select data-answer="с концерта">
+                    <option value="">---</option>
+                    <option value="с концерта">с концерта</option>
+                    <option value="из концерта">из концерта</option>
+                    <option value="с концерт">с концерт</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Zeile 4: Arbeit -->
+        <div class="data-row">
+            <div class="word-cell">Работа</div>
+            
+            <div class="input-cell">
+                <span class="mobile-label lbl-gde">Где? (Wo?)</span>
+                <select data-answer="на работе">
+                    <option value="">---</option>
+                    <option value="на работе">на работе</option>
+                    <option value="в работе">в работе</option>
+                    <option value="на работу">на работу</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-kuda">Куда? (Wohin?)</span>
+                <select data-answer="на работу">
+                    <option value="">---</option>
+                    <option value="в работу">в работу</option>
+                    <option value="на работе">на работе</option>
+                    <option value="на работу">на работу</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-otkuda">Откуда? (Woher?)</span>
+                <select data-answer="с работы">
+                    <option value="">---</option>
+                    <option value="из работы">из работы</option>
+                    <option value="с работы">с работы</option>
+                    <option value="от работы">от работы</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Zeile 5: Museum -->
+        <div class="data-row">
+            <div class="word-cell">Музей</div>
+            
+            <div class="input-cell">
+                <span class="mobile-label lbl-gde">Где? (Wo?)</span>
+                <select data-answer="в музее">
+                    <option value="">---</option>
+                    <option value="на музее">на музее</option>
+                    <option value="в музей">в музей</option>
+                    <option value="в музее">в музее</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-kuda">Куда? (Wohin?)</span>
+                <select data-answer="в музей">
+                    <option value="">---</option>
+                    <option value="в музей">в музей</option>
+                    <option value="в музея">в музея</option>
+                    <option value="на музей">на музей</option>
+                </select>
+            </div>
+
+            <div class="input-cell">
+                <span class="mobile-label lbl-otkuda">Откуда? (Woher?)</span>
+                <select data-answer="из музея">
+                    <option value="">---</option>
+                    <option value="с музея">с музея</option>
+                    <option value="из музея">из музея</option>
+                    <option value="из музей">из музей</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        const selects = document.querySelectorAll('select');
+        let correctCount = 0;
+        let answeredCount = 0;
+
+        selects.forEach(select => {
+            const userAnswer = select.value;
+            const correctAnswer = select.getAttribute('data-answer');
+            
+            // Reset styles
+            select.classList.remove('correct', 'incorrect');
+
+            if (userAnswer !== "") {
+                answeredCount++;
+                if (userAnswer === correctAnswer) {
+                    select.classList.add('correct');
+                    correctCount++;
+                } else {
+                    select.classList.add('incorrect');
+                }
+            }
+        });
+
+        const summary = document.getElementById('summary');
+        
+        if (answeredCount === 0) {
+            summary.innerText = "Bitte füllen Sie die Felder aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctCount === selects.length) {
+            summary.innerText = "Perfekt! Alle Formen sind richtig transformiert.";
+            summary.style.color = "#27ae60";
+        } else {
+            summary.innerText = `Du hast ${correctCount} von ${selects.length} Feldern richtig.`;
+            summary.style.color = "#c0392b";
+        }
+    }
+
+    function resetTask() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            select.classList.remove('correct', 'incorrect');
+        });
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            const correctAnswer = select.getAttribute('data-answer');
+            select.value = correctAnswer;
+            select.classList.remove('incorrect');
+            select.classList.add('correct');
+        });
+        
+        const summary = document.getElementById('summary');
+        summary.innerText = "Lösung angezeigt.";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
