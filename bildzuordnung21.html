@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch: Visuelle Logik (Bild-Zuordnung)</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #c0392b;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --hover-color: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 { text-align: center; color: var(--primary-color); margin-bottom: 10px; }
+        h2 { text-align: center; color: #7f8c8d; font-size: 1.1rem; margin-top: 0; margin-bottom: 30px; }
+
+        .instruction-box {
+            background-color: #fff;
+            border-left: 5px solid var(--accent-color);
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* Grid für die Karten */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Karte Design */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 5px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* SVG Grafik Container */
+        .svg-container {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* SVG Styles */
+        .house-stroke { fill: none; stroke: #34495e; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+        .arrow { fill: none; stroke: #e74c3c; stroke-width: 4; stroke-linecap: round; }
+        .arrow-head { fill: #e74c3c; }
+        .dot { fill: #27ae60; }
+
+        /* Formular Elemente */
+        .options-wrapper {
+            width: 100%;
+        }
+
+        .question-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            text-align: center;
+        }
+
+        /* Radio Button Styling (als Buttons) */
+        .radio-option {
+            display: block;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .radio-btn-style {
+            display: block;
+            padding: 10px 15px;
+            background-color: #f8f9fa;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .radio-option:hover .radio-btn-style {
+            background-color: #e8f6f3;
+            border-color: var(--accent-color);
+        }
+
+        .radio-option input:checked + .radio-btn-style {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Dropdown Styling */
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Feedback Styles */
+        .correct-border { border-color: var(--success-color) !important; box-shadow: 0 0 10px rgba(39, 174, 96, 0.2); }
+        .incorrect-border { border-color: var(--error-color) !important; box-shadow: 0 0 10px rgba(192, 57, 43, 0.2); }
+        
+        .correct-bg { background-color: #d4efdf !important; color: #145a32 !important; border-color: var(--success-color) !important; }
+        .incorrect-bg { background-color: #fadbd8 !important; color: #7b241c !important; border-color: var(--error-color) !important; }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            margin-bottom: 50px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.9; }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-solve { background-color: #f39c12; }
+
+        .feedback-summary {
+            text-align: center;
+            font-weight: bold;
+            margin: 20px 0;
+            min-height: 1.5em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Visuelle Grammatik</h1>
+    <h2>Ordnen Sie die Bilder den richtigen Sätzen oder Fragewörtern zu.</h2>
+
+    <div class="instruction-box">
+        <strong>Legende:</strong>
+        <br>🔴 <strong>Pfeil zum Haus:</strong> Bewegung hin (Wohin / Куда)
+        <br>🟢 <strong>Punkt im Haus:</strong> Position (Wo / Где)
+        <br>🔴 <strong>Pfeil aus dem Haus:</strong> Bewegung weg (Woher / Откуда)
+    </div>
+
+    <div class="grid-container">
+
+        <!-- KARTE 1: Wohin (Pfeil rein) -> Fragewort -->
+        <div class="card" id="card1">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <!-- Haus -->
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <!-- Pfeil rein -->
+                    <line class="arrow" x1="0" y1="50" x2="40" y2="50" />
+                    <polygon class="arrow-head" points="35,45 48,50 35,55" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welches Fragewort passt?</span>
+                <select id="select1" data-answer="Куда">
+                    <option value="">--- Wählen ---</option>
+                    <option value="Где">Где?</option>
+                    <option value="Куда">Куда?</option>
+                    <option value="Откуда">Откуда?</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KARTE 2: Wo (Punkt drin) -> Fragewort -->
+        <div class="card" id="card2">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <!-- Haus -->
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <!-- Punkt -->
+                    <circle class="dot" cx="50" cy="65" r="8" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welches Fragewort passt?</span>
+                <select id="select2" data-answer="Где">
+                    <option value="">--- Wählen ---</option>
+                    <option value="Где">Где?</option>
+                    <option value="Куда">Куда?</option>
+                    <option value="Откуда">Откуда?</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KARTE 3: Woher (Pfeil raus) -> Fragewort -->
+        <div class="card" id="card3">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <!-- Haus -->
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <!-- Pfeil raus -->
+                    <line class="arrow" x1="50" y1="65" x2="95" y2="65" />
+                    <polygon class="arrow-head" points="90,60 98,65 90,70" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welches Fragewort passt?</span>
+                <select id="select3" data-answer="Откуда">
+                    <option value="">--- Wählen ---</option>
+                    <option value="Где">Где?</option>
+                    <option value="Куда">Куда?</option>
+                    <option value="Откуда">Откуда?</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- KARTE 4: Wohin -> Satzwahl -->
+        <div class="card" id="card4">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <!-- Pfeil rein (dynamisch) -->
+                    <line class="arrow" x1="10" y1="20" x2="40" y2="40" />
+                    <polygon class="arrow-head" points="35,32 45,43 32,40" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welcher Satz ist richtig?</span>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q4" value="correct">
+                    <span class="radio-btn-style">Я иду домой.</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q4" value="wrong">
+                    <span class="radio-btn-style">Я иду дома.</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- KARTE 5: Wo -> Satzwahl -->
+        <div class="card" id="card5">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <circle class="dot" cx="50" cy="65" r="8" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welcher Satz ist richtig?</span>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q5" value="wrong">
+                    <span class="radio-btn-style">Я был домой.</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q5" value="correct">
+                    <span class="radio-btn-style">Я был дома.</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- KARTE 6: Woher -> Satzwahl -->
+        <div class="card" id="card6">
+            <div class="svg-container">
+                <svg viewBox="0 0 100 100">
+                    <path class="house-stroke" d="M20,40 L50,10 L80,40 L80,90 L20,90 Z" />
+                    <!-- Pfeil raus -->
+                    <line class="arrow" x1="50" y1="65" x2="90" y2="30" />
+                    <polygon class="arrow-head" points="82,30 95,25 90,40" />
+                </svg>
+            </div>
+            <div class="options-wrapper">
+                <span class="question-label">Welcher Satz ist richtig?</span>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q6" value="correct">
+                    <span class="radio-btn-style">Я иду из дома.</span>
+                </label>
+                
+                <label class="radio-option">
+                    <input type="radio" name="q6" value="wrong">
+                    <span class="radio-btn-style">Я иду с дома.</span>
+                </label>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="feedback-summary" id="summary"></div>
+
+    <div class="btn-container">
+        <button class="btn-check" onclick="checkAnswers()">Überprüfen</button>
+        <button class="btn-reset" onclick="resetTask()">Zurücksetzen</button>
+        <button class="btn-solve" onclick="showSolution()">Lösung anzeigen</button>
+    </div>
+</div>
+
+<script>
+    function checkAnswers() {
+        let correctCount = 0;
+        let totalItems = 6;
+        let attempted = 0;
+
+        // 1. Check Dropdowns (Cards 1-3)
+        for (let i = 1; i <= 3; i++) {
+            const select = document.getElementById(`select${i}`);
+            const card = document.getElementById(`card${i}`);
+            const answer = select.value;
+            const correctAnswer = select.getAttribute('data-answer');
+
+            // Reset
+            select.classList.remove('correct-bg', 'incorrect-bg');
+            card.style.borderTopColor = 'transparent';
+
+            if (answer !== "") {
+                attempted++;
+                if (answer === correctAnswer) {
+                    select.classList.add('correct-bg');
+                    card.style.borderTopColor = 'var(--success-color)';
+                    correctCount++;
+                } else {
+                    select.classList.add('incorrect-bg');
+                    card.style.borderTopColor = 'var(--error-color)';
+                }
+            }
+        }
+
+        // 2. Check Radio Buttons (Cards 4-6)
+        for (let i = 4; i <= 6; i++) {
+            const card = document.getElementById(`card${i}`);
+            const radios = document.getElementsByName(`q${i}`);
+            let selectedValue = null;
+            let selectedLabel = null;
+
+            // Reset Styles
+            card.querySelectorAll('.radio-btn-style').forEach(el => {
+                el.classList.remove('correct-bg', 'incorrect-bg');
+            });
+            card.style.borderTopColor = 'transparent';
+
+            radios.forEach(radio => {
+                if (radio.checked) {
+                    selectedValue = radio.value;
+                    selectedLabel = radio.nextElementSibling;
+                }
+            });
+
+            if (selectedValue) {
+                attempted++;
+                if (selectedValue === 'correct') {
+                    selectedLabel.classList.add('correct-bg');
+                    card.style.borderTopColor = 'var(--success-color)';
+                    correctCount++;
+                } else {
+                    selectedLabel.classList.add('incorrect-bg');
+                    card.style.borderTopColor = 'var(--error-color)';
+                }
+            }
+        }
+
+        // Feedback
+        const summary = document.getElementById('summary');
+        if (attempted === 0) {
+            summary.innerText = "Bitte wählen Sie für jedes Bild eine Antwort aus.";
+            summary.style.color = "var(--primary-color)";
+        } else if (correctCount === totalItems) {
+            summary.innerText = "Hervorragend! Alle Bilder korrekt zugeordnet.";
+            summary.style.color = "var(--success-color)";
+        } else {
+            summary.innerText = `Du hast ${correctCount} von ${totalItems} richtig.`;
+            summary.style.color = "var(--error-color)";
+        }
+    }
+
+    function resetTask() {
+        // Dropdowns reset
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.selectedIndex = 0;
+            select.classList.remove('correct-bg', 'incorrect-bg');
+        });
+
+        // Radios reset
+        const radios = document.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => radio.checked = false);
+        
+        // Styles reset
+        document.querySelectorAll('.radio-btn-style').forEach(el => {
+            el.classList.remove('correct-bg', 'incorrect-bg');
+        });
+        document.querySelectorAll('.card').forEach(card => {
+            card.style.borderTopColor = 'transparent';
+        });
+
+        document.getElementById('summary').innerText = "";
+    }
+
+    function showSolution() {
+        // Dropdowns lösen
+        for (let i = 1; i <= 3; i++) {
+            const select = document.getElementById(`select${i}`);
+            const correctAnswer = select.getAttribute('data-answer');
+            select.value = correctAnswer;
+            select.classList.add('correct-bg'); // Visuell markieren
+            document.getElementById(`card${i}`).style.borderTopColor = 'var(--success-color)';
+        }
+
+        // Radios lösen
+        for (let i = 4; i <= 6; i++) {
+            const radios = document.getElementsByName(`q${i}`);
+            const card = document.getElementById(`card${i}`);
+            
+            // Erst resetten
+            card.querySelectorAll('.radio-btn-style').forEach(el => {
+                el.classList.remove('correct-bg', 'incorrect-bg');
+            });
+
+            radios.forEach(radio => {
+                if (radio.value === 'correct') {
+                    radio.checked = true;
+                    radio.nextElementSibling.classList.add('correct-bg');
+                }
+            });
+            card.style.borderTopColor = 'var(--success-color)';
+        }
+
+        const summary = document.getElementById('summary');
+        summary.innerText = "Lösung angezeigt.";
+        summary.style.color = "#f39c12";
+    }
+</script>
+
+</body>
+</html>
