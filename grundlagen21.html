@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Russisch Grammatik: Где, Куда, Откуда</title>
+    <!-- Polyfill für Touch-Geräte für Drag & Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/drag-drop-touch@1.3.1/DragDropTouch.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --error-color: #c0392b;
+            --bg-color: #ecf0f1;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        /* Keine Kursivschrift für Russisch */
+        .rus {
+            font-style: normal;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .intro-box {
+            background-color: var(--card-bg);
+            border-left: 5px solid var(--accent-color);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .exercise-card {
+            background-color: var(--card-bg);
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary-color);
+        }
+
+        .exercise-title {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            color: white;
+        }
+
+        .btn-check { background-color: var(--accent-color); }
+        .btn-check:hover { background-color: #2980b9; }
+
+        .btn-reset { background-color: #95a5a6; }
+        .btn-reset:hover { background-color: #7f8c8d; }
+
+        .btn-solve { background-color: #f39c12; }
+        .btn-solve:hover { background-color: #d35400; }
+
+        /* Form Elements styling */
+        select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 300px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        .radio-group label {
+            display: block;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+
+        /* Feedback Styling */
+        .feedback-msg {
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .correct-border { border: 2px solid var(--success-color) !important; background-color: #e8f8f5; }
+        .incorrect-border { border: 2px solid var(--error-color) !important; background-color: #fdedec; }
+        
+        .correct-text { color: var(--success-color); }
+        .incorrect-text { color: var(--error-color); }
+
+        /* Drag and Drop Specifics */
+        .drop-zones {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .drop-zone {
+            flex: 1;
+            min-width: 150px;
+            min-height: 100px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 6px;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        .drop-zone h4 {
+            text-align: center;
+            margin-top: 0;
+            pointer-events: none;
+        }
+
+        .draggable-items {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: #eee;
+            border-radius: 6px;
+        }
+
+        .draggable {
+            background: white;
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            .drop-zones {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <header style="text-align: center; margin-bottom: 40px;">
+        <h1>Russische Grammatik</h1>
+        <h2>Die Verwendung von <span class="rus">Где, Куда, Откуда</span></h2>
+    </header>
+
+    <!-- Einführung -->
+    <section class="intro-box">
+        <h3>Einführung und Erklärung</h3>
+        <p>Im Russischen ist die Unterscheidung zwischen Ort, Richtung und Herkunft sehr wichtig, da sie unterschiedliche Fälle und Präpositionen verlangt.</p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fragewort</th>
+                        <th>Bedeutung</th>
+                        <th>Fall (Kasus)</th>
+                        <th>Präpositionen</th>
+                        <th>Beispiel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="rus">Где?</td>
+                        <td>Wo? (Ort, statisch)</td>
+                        <td>Präpositiv (6. Fall)</td>
+                        <td class="rus">в, на</td>
+                        <td class="rus">Я в школе. / Я на работе.</td>
+                    </tr>
+                    <tr>
+                        <td class="rus">Куда?</td>
+                        <td>Wohin? (Richtung, Bewegung)</td>
+                        <td>Akkusativ (4. Fall)</td>
+                        <td class="rus">в, на</td>
+                        <td class="rus">Я иду в школу. / Я иду на работу.</td>
+                    </tr>
+                    <tr>
+                        <td class="rus">Откуда?</td>
+                        <td>Woher? (Herkunft, Rückweg)</td>
+                        <td>Genitiv (2. Fall)</td>
+                        <td class="rus">из, с</td>
+                        <td class="rus">Я иду из школы. / Я иду с работы.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <p><strong>Wichtig - Die Paare:</strong></p>
+        <ul>
+            <li>Wenn <em>Wohin/Wo</em> = <span class="rus">в</span> (in), dann <em>Woher</em> = <span class="rus">из</span> (aus).</li>
+            <li>Wenn <em>Wohin/Wo</em> = <span class="rus">на</span> (auf/an), dann <em>Woher</em> = <span class="rus">с</span> (von).</li>
+        </ul>
+    </section>
+
+    <!-- Aufgabe 1: Fragewörter Auswahl -->
+    <div class="exercise-card" id="ex1">
+        <div class="exercise-title">Aufgabe 1: Wähle das richtige Fragewort</div>
+        <p>... ты идешь сейчас? – Я иду в парк.</p>
+        <div class="radio-group">
+            <label><input type="radio" name="ex1_q" value="wrong"> <span class="rus">Где</span></label>
+            <label><input type="radio" name="ex1_q" value="correct"> <span class="rus">Куда</span></label>
+            <label><input type="radio" name="ex1_q" value="wrong"> <span class="rus">Откуда</span></label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex1', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex1')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex1', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 2: Fragewörter Auswahl (Woher) -->
+    <div class="exercise-card" id="ex2">
+        <div class="exercise-title">Aufgabe 2: Wähle das richtige Fragewort</div>
+        <p>... ты приехал? – Я приехал из Москвы.</p>
+        <div class="radio-group">
+            <label><input type="radio" name="ex2_q" value="wrong"> <span class="rus">Куда</span></label>
+            <label><input type="radio" name="ex2_q" value="wrong"> <span class="rus">Где</span></label>
+            <label><input type="radio" name="ex2_q" value="correct"> <span class="rus">Откуда</span></label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex2', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex2')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex2', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 3: Fragewörter Auswahl (Wo) -->
+    <div class="exercise-card" id="ex3">
+        <div class="exercise-title">Aufgabe 3: Wähle das richtige Fragewort</div>
+        <p>... твоя книга? – Она лежит на столе.</p>
+        <div class="radio-group">
+            <label><input type="radio" name="ex3_q" value="correct"> <span class="rus">Где</span></label>
+            <label><input type="radio" name="ex3_q" value="wrong"> <span class="rus">Куда</span></label>
+            <label><input type="radio" name="ex3_q" value="wrong"> <span class="rus">Откуда</span></label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex3', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex3')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex3', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 4: Drag & Drop Kategorisierung -->
+    <div class="exercise-card" id="ex4">
+        <div class="exercise-title">Aufgabe 4: Ordne die Begriffe den Kategorien zu (Drag & Drop)</div>
+        <p>Ziehe die Wörter in die richtige Box.</p>
+        
+        <div class="drop-zones">
+            <div class="drop-zone" id="zone-gde" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h4 class="rus">Где?</h4>
+            </div>
+            <div class="drop-zone" id="zone-kuda" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h4 class="rus">Куда?</h4>
+            </div>
+            <div class="drop-zone" id="zone-otkuda" ondrop="drop(event)" ondragover="allowDrop(event)">
+                <h4 class="rus">Откуда?</h4>
+            </div>
+        </div>
+
+        <div class="draggable-items" id="ex4-source" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d1" data-target="zone-kuda"><span class="rus">в школу</span></div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d2" data-target="zone-gde"><span class="rus">в школе</span></div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d3" data-target="zone-otkuda"><span class="rus">из школы</span></div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d4" data-target="zone-kuda"><span class="rus">домой</span></div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d5" data-target="zone-gde"><span class="rus">дома</span></div>
+            <div class="draggable" draggable="true" ondragstart="drag(event)" id="d6" data-target="zone-otkuda"><span class="rus">из дома</span></div>
+        </div>
+        
+        <div class="feedback-msg" id="ex4-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkDragDrop('ex4')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetDragDrop('ex4')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveDragDrop('ex4')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 5: Dropdown - Fragewörter -->
+    <div class="exercise-card" id="ex5">
+        <div class="exercise-title">Aufgabe 5: Wähle das passende Fragewort</div>
+        <p>Wähle aus: <span class="rus">Где</span>, <span class="rus">Куда</span> oder <span class="rus">Откуда</span>.</p>
+        <div>
+            1. <select id="ex5_1">
+                <option value="">...</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select> папа идет? (Er geht zur Arbeit)
+        </div>
+        <div>
+            2. <select id="ex5_2">
+                <option value="">...</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select> ты? (Ich bin im Kino)
+        </div>
+        <div>
+            3. <select id="ex5_3">
+                <option value="">...</option>
+                <option value="Где">Где</option>
+                <option value="Куда">Куда</option>
+                <option value="Откуда">Откуда</option>
+            </select> они прилетели? (Aus Italien)
+        </div>
+        <div class="feedback-msg" id="ex5-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkSelects('ex5', ['Куда', 'Где', 'Откуда'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSelects('ex5', 3)">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelects('ex5', ['Куда', 'Где', 'Откуда'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 6: Dropdown - Präpositionen (в/на) -->
+    <div class="exercise-card" id="ex6">
+        <div class="exercise-title">Aufgabe 6: Wähle die richtige Präposition (в/на)</div>
+        <p>Achte auf das Substantiv (geschlossener Raum vs. offener Platz/Veranstaltung).</p>
+        <div>
+            1. Я иду <select id="ex6_1"><option value="">...</option><option value="в">в</option><option value="на">на</option></select> <span class="rus">магазин</span>.
+        </div>
+        <div>
+            2. Мы идем <select id="ex6_2"><option value="">...</option><option value="в">в</option><option value="на">на</option></select> <span class="rus">концерт</span>.
+        </div>
+        <div>
+            3. Дети играют <select id="ex6_3"><option value="">...</option><option value="в">в</option><option value="на">на</option></select> <span class="rus">парке</span>.
+        </div>
+        <div class="feedback-msg" id="ex6-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkSelects('ex6', ['в', 'на', 'в'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSelects('ex6', 3)">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelects('ex6', ['в', 'на', 'в'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 7: Dropdown - Präpositionen (из/с) -->
+    <div class="exercise-card" id="ex7">
+        <div class="exercise-title">Aufgabe 7: Wähle die richtige Präposition (из/с)</div>
+        <p>Denke an die Paare: в ↔ из, на ↔ с.</p>
+        <div>
+            1. Я иду <select id="ex7_1"><option value="">...</option><option value="из">из</option><option value="с">с</option></select> <span class="rus">магазина</span>. (weil: в магазин)
+        </div>
+        <div>
+            2. Мы идем <select id="ex7_2"><option value="">...</option><option value="из">из</option><option value="с">с</option></select> <span class="rus">концерта</span>. (weil: на концерт)
+        </div>
+        <div class="feedback-msg" id="ex7-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkSelects('ex7', ['из', 'с'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSelects('ex7', 2)">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelects('ex7', ['из', 'с'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 8: Richtige Endung auswählen (Akkusativ - Куда) -->
+    <div class="exercise-card" id="ex8">
+        <div class="exercise-title">Aufgabe 8: Wähle die richtige Endung (Куда? + Akkusativ)</div>
+        <p>Я иду в...</p>
+        <div class="radio-group">
+            <label><input type="radio" name="ex8_q" value="wrong"> <span class="rus">школа</span></label>
+            <label><input type="radio" name="ex8_q" value="wrong"> <span class="rus">школе</span></label>
+            <label><input type="radio" name="ex8_q" value="correct"> <span class="rus">школу</span></label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex8', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex8')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex8', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 9: Richtige Endung auswählen (Präpositiv - Где) -->
+    <div class="exercise-card" id="ex9">
+        <div class="exercise-title">Aufgabe 9: Wähle die richtige Endung (Где? + Präpositiv)</div>
+        <p>Я работаю на...</p>
+        <div class="radio-group">
+            <label><input type="radio" name="ex9_q" value="wrong"> <span class="rus">завод</span></label>
+            <label><input type="radio" name="ex9_q" value="correct"> <span class="rus">заводе</span></label>
+            <label><input type="radio" name="ex9_q" value="wrong"> <span class="rus">завода</span></label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex9', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex9')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex9', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 10: Sätze vervollständigen (gemischt) -->
+    <div class="exercise-card" id="ex10">
+        <div class="exercise-title">Aufgabe 10: Vervollständige die Sätze</div>
+        <p>Achte auf den Sinn: Ort, Richtung oder Herkunft.</p>
+        <div>
+            1. Сейчас Антон <select id="ex10_1"><option value="">...</option><option value="в банке">в банке</option><option value="в банк">в банк</option></select>. (Ort)
+        </div>
+        <div>
+            2. Завтра он пойдет <select id="ex10_2"><option value="">...</option><option value="в банке">в банке</option><option value="в банк">в банк</option></select>. (Richtung)
+        </div>
+        <div>
+            3. Сейчас он идет <select id="ex10_3"><option value="">...</option><option value="из банка">из банка</option><option value="с банка">с банка</option></select>. (Herkunft)
+        </div>
+        <div class="feedback-msg" id="ex10-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkSelects('ex10', ['в банке', 'в банк', 'из банка'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSelects('ex10', 3)">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelects('ex10', ['в банке', 'в банк', 'из банка'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 11: Fehler finden -->
+    <div class="exercise-card" id="ex11">
+        <div class="exercise-title">Aufgabe 11: Welcher Satz ist grammatikalisch KORREKT?</div>
+        <div class="radio-group">
+            <label><input type="radio" name="ex11_q" value="wrong"> <span class="rus">Я иду на театр.</span></label>
+            <label><input type="radio" name="ex11_q" value="correct"> <span class="rus">Я иду в театр.</span></label>
+            <label><input type="radio" name="ex11_q" value="wrong"> <span class="rus">Я иду с театра.</span> (Falsch, weil "в театр" -> "из театра")</label>
+        </div>
+        <div class="feedback-msg"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkRadio('ex11', 'correct')">Überprüfen</button>
+            <button class="btn-reset" onclick="resetRadio('ex11')">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveRadio('ex11', 'correct')">Lösung anzeigen</button>
+        </div>
+    </div>
+
+    <!-- Aufgabe 12: Die Sonderform 'Haus' - Dropdown -->
+    <div class="exercise-card" id="ex12">
+        <div class="exercise-title">Aufgabe 12: Die Sonderformen von 'Haus'</div>
+        <p>Wähle die passende Form: <span class="rus">дома, домой, из дома</span>.</p>
+        <div>
+            1. Куда ты идешь? – Я иду <select id="ex12_1">
+                <option value="">...</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>.
+        </div>
+        <div>
+            2. Где ты был? – Я был <select id="ex12_2">
+                <option value="">...</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>.
+        </div>
+        <div>
+            3. Откуда ты? – Я иду <select id="ex12_3">
+                <option value="">...</option>
+                <option value="дома">дома</option>
+                <option value="домой">домой</option>
+                <option value="из дома">из дома</option>
+            </select>.
+        </div>
+        <div class="feedback-msg" id="ex12-feedback"></div>
+        <div class="btn-container">
+            <button class="btn-check" onclick="checkSelects('ex12', ['домой', 'дома', 'из дома'])">Überprüfen</button>
+            <button class="btn-reset" onclick="resetSelects('ex12', 3)">Zurücksetzen</button>
+            <button class="btn-solve" onclick="solveSelects('ex12', ['домой', 'дома', 'из дома'])">Lösung anzeigen</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Helper Functions ---
+
+    function setStatus(element, isCorrect) {
+        if (isCorrect) {
+            element.classList.add('correct-border');
+            element.classList.remove('incorrect-border');
+        } else {
+            element.classList.add('incorrect-border');
+            element.classList.remove('correct-border');
+        }
+    }
+
+    function clearStatus(element) {
+        element.classList.remove('correct-border', 'incorrect-border');
+    }
+
+    function showFeedback(id, text, isSuccess) {
+        const fb = document.querySelector(`#${id} .feedback-msg`);
+        if(!fb && id.includes('feedback')) { // if ID is already the feedback element
+             const el = document.getElementById(id);
+             el.innerText = text;
+             el.className = 'feedback-msg ' + (isSuccess ? 'correct-text' : 'incorrect-text');
+             el.style.display = 'block';
+             return;
+        }
+        
+        // Fallback for container ID
+        if(fb) {
+            fb.innerText = text;
+            fb.className = 'feedback-msg ' + (isSuccess ? 'correct-text' : 'incorrect-text');
+            fb.style.display = 'block';
+        }
+    }
+
+    function clearFeedback(id) {
+        const fb = document.querySelector(`#${id} .feedback-msg`) || document.getElementById(id + '-feedback');
+        if (fb) {
+            fb.style.display = 'none';
+            fb.innerText = '';
+        }
+    }
+
+    // --- Radio Button Logic ---
+
+    function checkRadio(exerciseId, correctValue) {
+        const radios = document.getElementsByName(exerciseId + '_q');
+        let selected = false;
+        let isCorrect = false;
+
+        for (const radio of radios) {
+            if (radio.checked) {
+                selected = true;
+                if (radio.value === correctValue) {
+                    isCorrect = true;
+                }
+            }
+        }
+
+        if (!selected) {
+            showFeedback(exerciseId, "Bitte wähle eine Antwort aus.", false);
+            return;
+        }
+
+        showFeedback(exerciseId, isCorrect ? "Richtig! Молодец!" : "Leider falsch. Versuche es nochmal.", isCorrect);
+    }
+
+    function resetRadio(exerciseId) {
+        const radios = document.getElementsByName(exerciseId + '_q');
+        for (const radio of radios) {
+            radio.checked = false;
+        }
+        clearFeedback(exerciseId);
+    }
+
+    function solveRadio(exerciseId, correctValue) {
+        const radios = document.getElementsByName(exerciseId + '_q');
+        for (const radio of radios) {
+            if (radio.value === correctValue) {
+                radio.checked = true;
+            }
+        }
+        clearFeedback(exerciseId);
+    }
+
+    // --- Select/Dropdown Logic ---
+
+    function checkSelects(exerciseId, correctAnswers) {
+        let allCorrect = true;
+        for (let i = 0; i < correctAnswers.length; i++) {
+            const select = document.getElementById(`${exerciseId}_${i+1}`);
+            if (select.value === correctAnswers[i]) {
+                setStatus(select, true);
+            } else {
+                setStatus(select, false);
+                allCorrect = false;
+            }
+        }
+        showFeedback(exerciseId + '-feedback', allCorrect ? "Richtig! Отлично!" : "Überprüfe deine Auswahl noch einmal.", allCorrect);
+    }
+
+    function resetSelects(exerciseId, count) {
+        for (let i = 0; i < count; i++) {
+            const select = document.getElementById(`${exerciseId}_${i+1}`);
+            select.selectedIndex = 0;
+            clearStatus(select);
+        }
+        clearFeedback(exerciseId + '-feedback');
+    }
+
+    function solveSelects(exerciseId, correctAnswers) {
+        for (let i = 0; i < correctAnswers.length; i++) {
+            const select = document.getElementById(`${exerciseId}_${i+1}`);
+            select.value = correctAnswers[i];
+            clearStatus(select);
+        }
+        clearFeedback(exerciseId + '-feedback');
+    }
+
+    // --- Drag and Drop Logic (Native HTML5 API) ---
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drag(ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+        ev.target.classList.add('dragging');
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        var draggedElement = document.getElementById(data);
+        draggedElement.classList.remove('dragging');
+        
+        // Find closest dropzone or source container
+        let target = ev.target;
+        while (target && !target.classList.contains('drop-zone') && !target.classList.contains('draggable-items')) {
+            target = target.parentNode;
+        }
+
+        if (target) {
+            target.appendChild(draggedElement);
+        }
+    }
+
+    function checkDragDrop(exerciseId) {
+        const items = document.querySelectorAll(`#${exerciseId} .draggable`);
+        let allCorrect = true;
+        let placedCount = 0;
+
+        items.forEach(item => {
+            const correctZoneId = item.getAttribute('data-target');
+            const parent = item.parentElement;
+            
+            // Remove previous formatting
+            item.style.border = "1px solid #bdc3c7";
+            item.style.backgroundColor = "white";
+
+            if (parent.classList.contains('drop-zone')) {
+                placedCount++;
+                if (parent.id === correctZoneId) {
+                    item.style.border = "2px solid var(--success-color)";
+                    item.style.backgroundColor = "#e8f8f5";
+                } else {
+                    item.style.border = "2px solid var(--error-color)";
+                    item.style.backgroundColor = "#fdedec";
+                    allCorrect = false;
+                }
+            } else {
+                allCorrect = false; // Not placed yet
+            }
+        });
+
+        const feedbackId = exerciseId + '-feedback';
+        if (placedCount < items.length) {
+            showFeedback(feedbackId, "Bitte ordne alle Wörter zu.", false);
+        } else {
+            showFeedback(feedbackId, allCorrect ? "Fantastisch! Alles korrekt." : "Einige Wörter sind in der falschen Box.", allCorrect);
+        }
+    }
+
+    function resetDragDrop(exerciseId) {
+        const sourceContainer = document.getElementById(exerciseId + '-source');
+        const items = document.querySelectorAll(`#${exerciseId} .draggable`);
+        
+        // Convert NodeList to Array to sort by ID to restore original order
+        const itemsArray = Array.from(items).sort((a, b) => a.id.localeCompare(b.id));
+
+        itemsArray.forEach(item => {
+            sourceContainer.appendChild(item);
+            item.style.border = "1px solid #bdc3c7";
+            item.style.backgroundColor = "white";
+        });
+        clearFeedback(exerciseId + '-feedback');
+    }
+
+    function solveDragDrop(exerciseId) {
+        const items = document.querySelectorAll(`#${exerciseId} .draggable`);
+        items.forEach(item => {
+            const correctZoneId = item.getAttribute('data-target');
+            const zone = document.getElementById(correctZoneId);
+            zone.appendChild(item);
+            item.style.border = "1px solid #bdc3c7";
+            item.style.backgroundColor = "white";
+        });
+        clearFeedback(exerciseId + '-feedback');
+    }
+
+</script>
+
+</body>
+</html>
